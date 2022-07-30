@@ -1,0 +1,7 @@
+node_modules
+prod/
+.idea/
+commandSchema.txt
+.env
+*.db
+src/config.ts
