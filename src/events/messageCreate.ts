@@ -24,7 +24,7 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 		})
 			.catch(() => false);
 		if (!category)
-			return caller.utils.discord.createMessage(msg.channel.id, 'A category could not be created. Setup cancelled.');
+			return caller.utils.discord.createMessage(msg.channel.id, 'No pude crear una categoría. Setup cancelado.');
 
 		config = await caller.db.createConfig({
 			mainCategoryID: category.id,
@@ -35,9 +35,9 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 			}
 		});
 		if (!config)
-			return caller.utils.discord.createMessage(msg.channel.id, 'The config could not be added to the database. Setup cancelled.');
+			return caller.utils.discord.createMessage(msg.channel.id, 'La configuración no se guardó en la base de datos. Setup cancelado.');
 
-		return caller.utils.discord.createMessage(msg.channel.id, 'Server completely setup. A ModMail category has been created for you.');
+		return caller.utils.discord.createMessage(msg.channel.id, 'Servidor preparado. La categoría del ModMail ha sido creada :)');
 	}
 	else if (!config) return;
 
@@ -65,7 +65,7 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 		if (!log) {
 			// Check for account and guild ages.
 			if (config.accountAge && config.accountAge > (Date.now() - msg.author.createdAt))
-				return caller.utils.discord.createMessage(msg.author.id, 'Your account is not old enough to contact the staff.', true);
+				return caller.utils.discord.createMessage(msg.author.id, 'Tu cuenta no tiene la suficiente edad para contactar al staff.', true);
 
 			if (config.guildAge) {
 				const guild = config.guildAgeID ?
@@ -74,9 +74,9 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 				if (guild) {
 					const guildMember = guild.members.get(msg.author.id);
 					if (!guildMember)
-						return caller.utils.discord.createMessage(msg.author.id, 'Your account has not been in the server long enough to contact the staff.', true);
+						return caller.utils.discord.createMessage(msg.author.id, 'Tu cuenta no tiene el suficiente tiempo en el servidor para abrir tickets.', true);
 					if (config.guildAge > (Date.now() - guildMember.joinedAt))
-						return caller.utils.discord.createMessage(msg.author.id, 'Your account has not been in the server long enough to contact the staff.', true);
+						return caller.utils.discord.createMessage(msg.author.id, 'Tu cuenta no tiene el suficiente tiempo en el servidor para abrir tickets.', true);
 				}
 			}
 
@@ -86,7 +86,7 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 				topic: msg.author.id
 			});
 			if (!channel)
-				return caller.utils.discord.createMessage(msg.author.id, 'Sorry, an error has occurred when opening your thread. Please, contact an administrator.', true);
+				return caller.utils.discord.createMessage(msg.author.id, 'Erorr al abrir el ticket. Porfavor, contacta a un Administrador.', true);
 
 			// Creates the log.
 			log = await caller.db.createLog({
@@ -119,9 +119,9 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 				.setTitle(config.embeds.staff.title)
 				.setThumbnail(msg.author.dynamicAvatarURL())
 				.setColor(config.embeds.staff.color)
-				.setDescription(msg.content  || 'No content provided.')
-				.addField('User', `${msg.author.username}#${msg.author.discriminator} \`[${msg.author.id}]\``)
-				.addField('Past Threads', (await caller.db.numberOfPreviousLogs(msg.author.id)).toString())
+				.setDescription(msg.content  || 'No hay contenido.')
+				.addField('Usuario', `${msg.author.username}#${msg.author.discriminator} \`[${msg.author.id}]\``)
+				.addField('Ticket anteriores', (await caller.db.numberOfPreviousLogs(msg.author.id)).toString())
 				.setTimestamp();
 
 			caller.utils.discord.createMessage(msg.author.id, { embed: userOpenEmbed.code }, true);
@@ -145,14 +145,14 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 		else {
 			const channel = category.guild.channels.get(log.channelID);
 			if (!channel)
-				return caller.utils.discord.createMessage(msg.author.id, 'An error has occurred, I cannot find your current channel. Please, contact an administrator.', true);
+				return caller.utils.discord.createMessage(msg.author.id, 'Error, No puedo encontrar el canal, contacta a un Administrador.', true);
 
 			const guildEmbed = new MessageEmbed()
 				.setAuthor(`${msg.author.username}#${msg.author.discriminator}`, msg.author.dynamicAvatarURL())
 				.setColor(COLORS.RED)
-				.setDescription(msg.content || 'No content provided.')
+				.setDescription(msg.content || 'No hay contenido.')
 				.setTimestamp();
-			if (files.length > 0) guildEmbed.addField('Files', `This message contains ${files.length} file${files.length > 1 ? 's' : ''}`);
+			if (files.length > 0) guildEmbed.addField('Archivos', `Este mensaje tiene ${files.length} archivos${files.length > 1 ? 's' : ''}`);
 
 			// Look for subscribers
 			const content = log.subscriptions.map((userID) => `<@${userID}>`).join(' ');
@@ -202,16 +202,16 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 	// If no command is found, try to look for a snippet.
 	if (!cmd && log && config.snippets && config.snippets[command] && category.channels.has(msg.channel.id)) {
 		if (!caller.utils.misc.checkPermissions(msg.member!, 'snippet', config))
-			return caller.utils.discord.createMessage(msg.channel.id, 'Invalid permissions.');
+			return caller.utils.discord.createMessage(msg.channel.id, 'Permisos invalidos.');
 
 		const snippet = config.snippets[command];
 		const userEmbed = new MessageEmbed()
-			.setAuthor(snippet.anonymous ? 'Staff Reply' : `${msg.author.username}#${msg.author.discriminator}`, snippet.anonymous ? (msg.channel as TextChannel).guild.dynamicIconURL() : msg.author.dynamicAvatarURL())
+			.setAuthor(snippet.anonymous ? 'Respuesta del staff' : `${msg.author.username}#${msg.author.discriminator}`, snippet.anonymous ? (msg.channel as TextChannel).guild.dynamicIconURL() : msg.author.dynamicAvatarURL())
 			.setColor(COLORS.RED)
 			.setDescription(snippet.content)
 			.setTimestamp();
 		const channelEmbed = new MessageEmbed()
-			.setAuthor(snippet.anonymous ? 'Staff Reply' : `${msg.author.username}#${msg.author.discriminator}`, snippet.anonymous ? (msg.channel as TextChannel).guild.dynamicIconURL() : msg.author.dynamicAvatarURL())
+			.setAuthor(snippet.anonymous ? 'Respuesta del staff' : `${msg.author.username}#${msg.author.discriminator}`, snippet.anonymous ? (msg.channel as TextChannel).guild.dynamicIconURL() : msg.author.dynamicAvatarURL())
 			.setColor(COLORS.LIGHT_BLUE)
 			.setDescription(snippet.content)
 			.setTimestamp();
@@ -219,7 +219,7 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 		const guildMsg = await caller.utils.discord.createMessage(msg.channel.id, { embed: channelEmbed.code });
 		const userMsg = await caller.utils.discord.createMessage(log.recipient.id, { embed: userEmbed.code }, true);
 		if (!(guildMsg || userMsg))
-			return caller.utils.discord.createMessage(msg.channel.id, 'There has been an error sending this snippet.');
+			return caller.utils.discord.createMessage(msg.channel.id, 'Error usando este snippet.');
 
 		// Add log to the DB.
 		caller.db.appendMessage(log._id, msg, 'STAFF_REPLY', `[SNIPPET] ${snippet.content}`, (userMsg as Message).id, (guildMsg as Message).id);
@@ -228,7 +228,7 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 	else if (!cmd) return;
 
 	if (!caller.utils.misc.checkPermissions(msg.member!, cmd.name, config))
-		return caller.utils.discord.createMessage(msg.channel.id, 'Invalid permissions.');
+		return caller.utils.discord.createMessage(msg.channel.id, 'Permisos invalidos.');
 	if (cmd.options.threadOnly && (!log)) return;
 	const channel = msg.channel as TextChannel;
 
@@ -239,5 +239,3 @@ export default async (caller: Mail, msg: Message): Promise<unknown> => {
 		console.error(e);
 	}
 };
-
-
