@@ -33,7 +33,7 @@ export default new Command('close', async (caller, cmd, log, config) => {
 		}
 
 		const confirmationEmbed = new MessageEmbed()
-			.setTitle('Cerrando ticket')
+			.setTitle('Closure Scheduled')
 			.setDescription(`Este ticket será eliminado en \`${closureDate.toDateString()}\` si no hay nuevas respuestas.`)
 			.setColor(COLORS.LIGHT_BLUE);
 		return caller.utils.discord.createMessage(cmd.channel.id, { embed: confirmationEmbed.code });
