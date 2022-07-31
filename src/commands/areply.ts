@@ -35,7 +35,7 @@ export default new Command('areply', async (caller, cmd, log) => {
 		caller.db.updateLog(log!._id, 'scheduledClosure', '', 'UNSET');
 		caller.db.updateLog(log!._id, 'closer', '', 'UNSET');
 		const closureCancellationEmbed = new MessageEmbed()
-			.setTitle('Cancelado cierre')
+			.setTitle('Closure Cancelled')
 			.setDescription('Este ticket será eliminado dado a su actividad.')
 			.setColor(COLORS.YELLOW);
 		caller.utils.discord.createMessage(cmd.channel.id, { embed: closureCancellationEmbed.code });

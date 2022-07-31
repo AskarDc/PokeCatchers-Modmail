@@ -25,7 +25,7 @@ export default new Command('delete', async (caller, cmd, log) => {
 	caller.db.editMessage(log!, message.id, '[DELETED] ' + message.content);
 
 	guildMsg.embeds[0].description = '[DELETED] ' + guildMsg.embeds[0].description;
-	guildMsg.embeds[0].footer ? guildMsg.embeds[0].footer.text = 'Eliminado' : guildMsg.embeds[0].footer = { text: 'Eliminado' };
+	guildMsg.embeds[0].footer ? guildMsg.embeds[0].footer.text = 'Deleted' : guildMsg.embeds[0].footer = { text: 'Deleted' };
 	guildMsg.edit({ embed: guildMsg.embeds[0] })
 		.catch(() => {
 			return caller.utils.discord.createMessage(cmd.channel.id, 'Mensaje no eliminado del canal.');

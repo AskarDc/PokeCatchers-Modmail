@@ -22,7 +22,7 @@ export default new Command('edit', async (caller, cmd, log) => {
 	userMsg.embeds[0].description = cmd.args.slice(1).join(' ');
 	userMsg.edit({ embed: userMsg.embeds[0] })
 		.catch(() => {
-			return caller.utils.discord.createMessage(cmd.channel.id, 'El mensaje del usuario no pude editarlo.');
+			return caller.utils.discord.createMessage(cmd.channel.id, 'EL mensaje del usuario no pude editarlo.');
 		});
 
 	caller.db.editMessage(log!, message.id, cmd.args.slice(1).join(' '));
